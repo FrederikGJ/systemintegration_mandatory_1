@@ -4,7 +4,7 @@ Java-bibliotek, som de fire API'er bruger til at læse og skrive i `library.db`.
 
 ## Databasen
 
-`library.db` er **ikke** i git. Hent den fra undervisningen og læg den her som `db/library.db`.
+`library.db` ligger i git og indeholder seed-data fra undervisningen. Filen ændrer sig, når API'erne skriver i den, så tjek `git status` før du committer, hvis du ikke vil have testdata med. SQLites side-filer (`-wal`, `-shm`, `-journal`) er gitignoret.
 
 | Tabel                | Indhold  | Kolonner                                                          |
 |----------------------|----------|-------------------------------------------------------------------|
@@ -50,4 +50,4 @@ books.findById(1000);
 ./mvnw -pl db test
 ```
 
-Testene kører mod en midlertidig kopi af `library.db` og springes over, hvis filen mangler.
+Testene kører mod en midlertidig kopi af `library.db`, så filen i git ikke ændres.

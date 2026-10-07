@@ -28,8 +28,7 @@ Fire API'er til et bibliotek, bygget oven på én fælles SQLite-database.
 
 ## Kom i gang
 
-1. Læg `library.db` i `db/`. Filen er ikke i git og hentes fra undervisningen.
-2. Byg og test alt:
+Databasen ligger i git, så der er intet at hente først. Byg og test alt:
 
 ```sh
 ./mvnw test
