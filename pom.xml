@@ -20,7 +20,8 @@
 
   <modules>
     <module>db</module>
-    <!-- rest-api, soap-api, graphql-api og grpc-api tilføjes her, når de oprettes -->
+      <module>soap-api</module>
+      <!-- rest-api, soap-api, graphql-api og grpc-api tilføjes her, når de oprettes -->
   </modules>
 
   <properties>
