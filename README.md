@@ -33,3 +33,7 @@ Databasen ligger i git, så der er intet at hente først. Byg og test alt:
 ```sh
 ./mvnw test
 ```
+
+## Licens
+
+GNU General Public License v3.0, se [LICENSE](LICENSE).

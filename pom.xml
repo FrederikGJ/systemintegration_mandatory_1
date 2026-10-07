@@ -10,6 +10,14 @@
   <packaging>pom</packaging>
   <name>Library APIs</name>
 
+  <licenses>
+    <license>
+      <name>GNU General Public License v3.0</name>
+      <url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
   <modules>
     <module>db</module>
     <!-- rest-api, soap-api, graphql-api og grpc-api tilføjes her, når de oprettes -->
