@@ -1,0 +1,20 @@
+# Java / build
+target/
+build/
+*.class
+*.jar
+!**/.mvn/wrapper/maven-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+
+# SQLite side-filer (opstår når API'erne skriver i library.db)
+*.db-journal
+*.db-wal
+*.db-shm
+
