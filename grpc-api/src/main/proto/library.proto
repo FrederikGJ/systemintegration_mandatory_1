@@ -1,0 +1,108 @@
+syntax = "proto3";
+
+package library;
+
+import "google/protobuf/empty.proto";
+
+option java_multiple_files = true;
+option java_package = "dk.library.grpc.proto";
+option java_outer_classname = "LibraryProto";
+
+message Book {
+  int32 id = 1;
+  string title = 2;
+  int32 author_id = 3;
+  optional int32 publishing_year = 4; // NULL i db = ikke sat
+  int32 publishing_company_id = 5;
+}
+
+message Author {
+  int32 id = 1;
+  string name = 2;
+  optional string surname = 3; // NULL i db = ikke sat
+}
+
+message PublishingCompany {
+  int32 id = 1;
+  string name = 2;
+}
+
+// Bøger
+service BookService {
+  rpc ListBooks(ListBooksRequest) returns (ListBooksResponse);
+  rpc GetBook(GetBookRequest) returns (Book);
+  rpc CreateBook(CreateBookRequest) returns (Book);
+  rpc UpdateBook(UpdateBookRequest) returns (Book);
+  rpc DeleteBook(DeleteBookRequest) returns (google.protobuf.Empty);
+}
+
+message ListBooksRequest {
+  optional int32 author_id = 1; // hvis den er sat: kun bøger af denne forfatter
+}
+message ListBooksResponse {
+  repeated Book books = 1;
+}
+message GetBookRequest {
+  int32 id = 1;
+}
+message CreateBookRequest {
+  Book book = 1; // book.id ignoreres, databasen tildeler id'et
+}
+message UpdateBookRequest {
+  Book book = 1; // book.id er rækken, der overskrives
+}
+message DeleteBookRequest {
+  int32 id = 1;
+}
+
+// Forfattere
+service AuthorService {
+  rpc ListAuthors(ListAuthorsRequest) returns (ListAuthorsResponse);
+  rpc GetAuthor(GetAuthorRequest) returns (Author);
+  rpc CreateAuthor(CreateAuthorRequest) returns (Author);
+  rpc UpdateAuthor(UpdateAuthorRequest) returns (Author);
+  rpc DeleteAuthor(DeleteAuthorRequest) returns (google.protobuf.Empty);
+}
+
+message ListAuthorsRequest {}
+message ListAuthorsResponse {
+  repeated Author authors = 1;
+}
+message GetAuthorRequest {
+  int32 id = 1;
+}
+message CreateAuthorRequest {
+  Author author = 1; // author.id ignoreres
+}
+message UpdateAuthorRequest {
+  Author author = 1; // author.id er rækken, der overskrives
+}
+message DeleteAuthorRequest {
+  int32 id = 1;
+}
+
+// Forlag
+service PublishingCompanyService {
+  rpc ListPublishingCompanies(ListPublishingCompaniesRequest) returns (ListPublishingCompaniesResponse);
+  rpc GetPublishingCompany(GetPublishingCompanyRequest) returns (PublishingCompany);
+  rpc CreatePublishingCompany(CreatePublishingCompanyRequest) returns (PublishingCompany);
+  rpc UpdatePublishingCompany(UpdatePublishingCompanyRequest) returns (PublishingCompany);
+  rpc DeletePublishingCompany(DeletePublishingCompanyRequest) returns (google.protobuf.Empty);
+}
+
+message ListPublishingCompaniesRequest {}
+message ListPublishingCompaniesResponse {
+  repeated PublishingCompany publishing_companies = 1;
+}
+message GetPublishingCompanyRequest {
+  int32 id = 1;
+}
+message CreatePublishingCompanyRequest {
+  PublishingCompany publishing_company = 1; // publishing_company.id ignoreres
+}
+message UpdatePublishingCompanyRequest {
+  PublishingCompany publishing_company = 1; // publishing_company.id er rækken, der overskrives
+}
+message DeletePublishingCompanyRequest {
+  int32 id = 1;
+}

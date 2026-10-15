@@ -24,7 +24,7 @@ Fire API'er til et bibliotek, bygget oven på én fælles SQLite-database.
 | `rest-api/`    | REST API                                                  |
 | `soap-api/`    | SOAP API                                                  |
 | `graphql-api/` | GraphQL API                                               |
-| `grpc-api/`    | gRPC API                                                  |
+| `grpc-api/`    | gRPC API. Se [grpc-api/README.md](grpc-api/README.md)     |
 
 ## Kom i gang
 
