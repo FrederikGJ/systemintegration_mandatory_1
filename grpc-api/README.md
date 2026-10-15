@@ -58,6 +58,8 @@ I Postman: *New → gRPC*, skriv `localhost:9090` og brug server reflection (ell
 
 Create, Update og Delete skriver i `db/library.db`, som ligger i git.
 
+Alle 15 RPC'er på én gang, kørsel mod en kopi af databasen og web-UI'et grpcui: se [API_testing_media/grpc/](../API_testing_media/grpc/README.md).
+
 ## Test
 
 ```sh
