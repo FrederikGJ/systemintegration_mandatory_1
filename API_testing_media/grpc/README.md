@@ -4,7 +4,7 @@ gRPC har ikke et collection-format, som Postman kan eksportere og importere. Her
 
 | Værktøj   | Hvad                                    | Svarer til            |
 |-----------|-----------------------------------------|-----------------------|
-| `grpc.sh` | Script med alle 15 RPC'er og fejltjek   | Postman-collection    |
+| `grpc.sh` | Script med alle 16 RPC'er og fejltjek   | Postman-collection    |
 | `grpcurl` | Kommandolinje-klient, som scriptet bruger | `curl`              |
 | `grpcui`  | Web-UI, der bygges ud fra serveren      | Postman / Swagger UI  |
 
@@ -49,7 +49,8 @@ GRPC_HOST=localhost:9091 API_testing_media/grpc/grpc.sh
 
 | Del         | Kald                                                                 |
 |-------------|----------------------------------------------------------------------|
-| `books`     | ListBooks (alle og forfatter 394), GetBook, CreateBook, UpdateBook, DeleteBook |
+| `books`     | ListBooks (alle og forfatter 394), GetBookById, CreateBook, UpdateBook, DeleteBook |
+| `watch`     | WatchBooks i baggrunden, CreateBook, tjek at bogen kom frem på streamen, DeleteBook |
 | `authors`   | ListAuthors, GetAuthor, CreateAuthor, UpdateAuthor, DeleteAuthor     |
 | `companies` | ListPublishingCompanies, GetPublishingCompany, Create, Update, Delete |
 | `errors`    | Kald, der skal fejle med `NotFound` eller `InvalidArgument`          |
@@ -70,11 +71,28 @@ grpcui -plaintext localhost:9090
 grpcurl -plaintext localhost:9090 list                          # services
 grpcurl -plaintext localhost:9090 describe library.BookService  # metoder
 grpcurl -plaintext localhost:9090 describe library.Book         # felter
-grpcurl -plaintext -d '{"id": 1000}' localhost:9090 library.BookService/GetBook
+grpcurl -plaintext -d '{"id": 1000}' localhost:9090 library.BookService/GetBookById
 ```
 
 - `-plaintext`: uden TLS, som vores server kører.
 - `-d`: requesten som JSON med feltnavnene fra `library.proto`. grpcurl laver den om til binær protobuf.
+
+## WatchBooks – streaming
+
+`WatchBooks` svarer ikke én gang, men holder forbindelsen åben og sender hver bog, der oprettes med `CreateBook`. Prøv det i to terminaler:
+
+```sh
+# terminal 1: abonnér og vent (Ctrl+C stopper)
+grpcurl -plaintext -d '{}' localhost:9090 library.BookService/WatchBooks
+
+# terminal 2: opret en bog, som dukker op i terminal 1
+grpcurl -plaintext -d '{"title": "Ny bog", "author_id": 394, "publishing_company_id": 74, "publishing_year": 2026}' \
+  localhost:9090 library.BookService/CreateBook
+```
+
+Start gerne flere abonnenter; alle får bogen.
+
+I grpcui virker WatchBooks også, men grpcui viser først beskederne, når kaldet slutter. Sæt derfor *Timeout* i formularen (fx 30 sekunder), opret bøger imens, og læs dem bagefter. Fanen viser så `DeadlineExceeded`, hvilket bare betyder, at tiden løb ud.
 
 ## Statuskoder
 

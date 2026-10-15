@@ -24,7 +24,7 @@ public final class ExceptionInterceptor implements ServerInterceptor {
     public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(
             ServerCall<ReqT, RespT> call, Metadata headers, ServerCallHandler<ReqT, RespT> next) {
         return new ForwardingServerCallListener.SimpleForwardingServerCallListener<>(next.startCall(call, headers)) {
-            // Ved unære kald kører service-metoden, når klienten har sendt hele requesten (half-close)
+            // Ved unære og server-streaming kald kører service-metoden, når klienten har sendt hele requesten (half-close)
             @Override
             public void onHalfClose() {
                 try {

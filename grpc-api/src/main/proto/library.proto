@@ -30,10 +30,12 @@ message PublishingCompany {
 // Bøger
 service BookService {
   rpc ListBooks(ListBooksRequest) returns (ListBooksResponse);
-  rpc GetBook(GetBookRequest) returns (Book);
-  rpc CreateBook(CreateBookRequest) returns (Book);
+  rpc GetBookById(GetBookByIdRequest) returns (Book);
+  rpc CreateBook(CreateBookRequest) returns (CreateBookResponse);
   rpc UpdateBook(UpdateBookRequest) returns (Book);
   rpc DeleteBook(DeleteBookRequest) returns (google.protobuf.Empty);
+  // Server-streaming: streamen er åben, indtil klienten afbryder, og sender hver bog, CreateBook opretter
+  rpc WatchBooks(WatchBooksRequest) returns (stream Book);
 }
 
 message ListBooksRequest {
@@ -42,12 +44,19 @@ message ListBooksRequest {
 message ListBooksResponse {
   repeated Book books = 1;
 }
-message GetBookRequest {
+message GetBookByIdRequest {
   int32 id = 1;
 }
 message CreateBookRequest {
-  Book book = 1; // book.id ignoreres, databasen tildeler id'et
+  string title = 1;
+  int32 author_id = 2;
+  int32 publishing_company_id = 3;
+  optional int32 publishing_year = 4; // ikke sat = NULL i db
 }
+message CreateBookResponse {
+  Book book = 1; // den oprettede bog med det id, databasen har tildelt
+}
+message WatchBooksRequest {}
 message UpdateBookRequest {
   Book book = 1; // book.id er rækken, der overskrives
 }

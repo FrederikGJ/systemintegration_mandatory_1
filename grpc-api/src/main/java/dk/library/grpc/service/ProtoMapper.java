@@ -2,6 +2,7 @@ package dk.library.grpc.service;
 
 import dk.library.grpc.proto.Author;
 import dk.library.grpc.proto.Book;
+import dk.library.grpc.proto.CreateBookRequest;
 import dk.library.grpc.proto.PublishingCompany;
 
 /**
@@ -33,6 +34,16 @@ final class ProtoMapper {
                 book.getAuthorId(),
                 book.hasPublishingYear() ? book.getPublishingYear() : null,
                 book.getPublishingCompanyId());
+    }
+
+    /** id er 0, fordi databasen tildeler det. */
+    static dk.library.db.model.Book toModel(CreateBookRequest request) {
+        return new dk.library.db.model.Book(
+                0,
+                request.getTitle(),
+                request.getAuthorId(),
+                request.hasPublishingYear() ? request.getPublishingYear() : null,
+                request.getPublishingCompanyId());
     }
 
     static Author toProto(dk.library.db.model.Author author) {
