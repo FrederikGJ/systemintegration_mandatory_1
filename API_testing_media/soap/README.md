@@ -23,6 +23,15 @@ cp ../db/library.db target/test.db
 LIBRARY_DB=target/test.db ../mvnw exec:exec
 ```
 
+I PowerShell:
+
+```powershell
+.\mvnw.cmd -pl soap-api -am install -DskipTests
+cd soap-api
+Copy-Item ..\db\library.db target\test.db
+$env:LIBRARY_DB = "target/test.db"; ..\mvnw.cmd exec:exec
+```
+
 ## Kør collectionen
 
 1. Postman: *Import* og vælg `library-soap.postman_collection.json`.

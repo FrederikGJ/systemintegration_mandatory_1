@@ -101,6 +101,13 @@ cp ../db/library.db target/test.db
 LIBRARY_DB=target/test.db ../mvnw exec:exec
 ```
 
+Samme i PowerShell, som sætter miljøvariabler med `$env:`. Variablen gælder resten af terminalvinduet:
+
+```powershell
+Copy-Item ..\db\library.db target\test.db
+$env:LIBRARY_DB = "target/test.db"; ..\mvnw.cmd exec:exec
+```
+
 | Miljøvariabel | Default            | Betydning                                             |
 |---------------|--------------------|-------------------------------------------------------|
 | `LIBRARY_DB`  | `../db/library.db` | Sti til databasen, se [db/README.md](../db/README.md) |
