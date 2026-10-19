@@ -18,3 +18,6 @@ build/
 *.db-wal
 *.db-shm
 
+# agents files
+AGENTS.md
+CLAUDE.md
