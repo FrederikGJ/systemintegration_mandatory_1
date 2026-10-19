@@ -1,0 +1,35 @@
+package dk.library.soap.messages.author;
+
+import dk.library.soap.Namespace;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlType;
+
+/** Kvittering fra UpdateAuthor. */
+@XmlRootElement(name = "UpdateAuthorResponse", namespace = Namespace.URI)
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "UpdateAuthorResponse", namespace = Namespace.URI,
+        propOrder = {"success", "message"})
+public class UpdateAuthorResponse {
+
+    @XmlElement(required = true)
+    private boolean success;
+
+    @XmlElement(required = true)
+    private String message;
+
+    public UpdateAuthorResponse() { }
+
+    public UpdateAuthorResponse(boolean success, String message) {
+        this.success = success;
+        this.message = message;
+    }
+
+    public boolean isSuccess() { return success; }
+    public void setSuccess(boolean success) { this.success = success; }
+
+    public String getMessage() { return message; }
+    public void setMessage(String message) { this.message = message; }
+}
