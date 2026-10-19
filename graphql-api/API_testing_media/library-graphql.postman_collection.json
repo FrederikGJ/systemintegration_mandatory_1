@@ -1,0 +1,438 @@
+{
+  "info": {
+    "name": "Library GraphQL \u2014 complete demo",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Run in order. Creates its own demo records and deletes them at the end. Use a database copy for demonstrations."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8082"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 Get book by ID",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/graphql",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"query\": \"{ bookById(id:1000) { id title publishingYear author { id name surname } publisher { id name } } }\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test(\"No GraphQL errors\", () => pm.expect(body.errors).to.be.undefined);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 List authors",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/graphql",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"query\": \"{ authors { id name surname } }\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test(\"No GraphQL errors\", () => pm.expect(body.errors).to.be.undefined);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 List publishers",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/graphql",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"query\": \"{ publishers { id name } }\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test(\"No GraphQL errors\", () => pm.expect(body.errors).to.be.undefined);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 Create author",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/graphql",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"query\": \"mutation { createAuthor(input:{name:\\\"GraphQL demo\\\",surname:\\\"Test\\\"}) { id name surname } }\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test(\"No GraphQL errors\", () => pm.expect(body.errors).to.be.undefined);",
+              "if (body.data && body.data.createAuthor) pm.collectionVariables.set(\"authorId\", body.data.createAuthor.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 Create publisher",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/graphql",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"query\": \"mutation { createPublisher(input:{name:\\\"GraphQL demo publisher\\\"}) { id name } }\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test(\"No GraphQL errors\", () => pm.expect(body.errors).to.be.undefined);",
+              "if (body.data && body.data.createPublisher) pm.collectionVariables.set(\"publisherId\", body.data.createPublisher.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 Create book",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/graphql",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"query\": \"mutation { createBook(input:{title:\\\"GraphQL demo\\\",authorId:{{authorId}},publishingCompanyId:{{publisherId}},publishingYear:2026}) { id title } }\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test(\"No GraphQL errors\", () => pm.expect(body.errors).to.be.undefined);",
+              "if (body.data && body.data.createBook) pm.collectionVariables.set(\"bookId\", body.data.createBook.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 Update author (all fields)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/graphql",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"query\": \"mutation { updateAuthor(id:{{authorId}},input:{name:\\\"Updated demo\\\",surname:\\\"Updated surname\\\"}) { id name surname } }\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test(\"No GraphQL errors\", () => pm.expect(body.errors).to.be.undefined);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 Update publisher (all fields)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/graphql",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"query\": \"mutation { updatePublisher(id:{{publisherId}},input:{name:\\\"Updated demo publisher\\\"}) { id name } }\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test(\"No GraphQL errors\", () => pm.expect(body.errors).to.be.undefined);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 Update book (all fields)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/graphql",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"query\": \"mutation { updateBook(id:{{bookId}},input:{title:\\\"Updated demo\\\",authorId:{{authorId}},publishingCompanyId:{{publisherId}},publishingYear:2025}) { id title authorId publishingCompanyId publishingYear } }\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test(\"No GraphQL errors\", () => pm.expect(body.errors).to.be.undefined);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 Delete book",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/graphql",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"query\": \"mutation { deleteBook(id:{{bookId}}) }\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test(\"No GraphQL errors\", () => pm.expect(body.errors).to.be.undefined);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 Delete author",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/graphql",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"query\": \"mutation { deleteAuthor(id:{{authorId}}) }\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test(\"No GraphQL errors\", () => pm.expect(body.errors).to.be.undefined);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 Delete publisher",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/graphql",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"query\": \"mutation { deletePublisher(id:{{publisherId}}) }\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test(\"No GraphQL errors\", () => pm.expect(body.errors).to.be.undefined);"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
