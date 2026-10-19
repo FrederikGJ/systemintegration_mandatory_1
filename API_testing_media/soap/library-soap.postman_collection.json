@@ -1,0 +1,1200 @@
+{
+  "info": {
+    "name": "Library SOAP API",
+    "description": "Alle 14 operationer og de tre faults. Start soap-api (se soap-api/README.md) og kør collectionen med Run collection. Create, Update og Delete skriver i databasen, så kør mod en kopi.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "WSDL og XSD",
+      "description": "Kontrakten, som serveren genererer ud fra Java-klasserne.",
+      "item": [
+        {
+          "name": "WSDL",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Indeholder <portType name=\"LibraryPortType\">\", () => pm.expect(pm.response.text()).to.include(\"<portType name=\\\"LibraryPortType\\\">\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}?wsdl",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "key": "wsdl",
+                  "value": null
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "XSD",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Indeholder <xs:complexType name=\"Book\">\", () => pm.expect(pm.response.text()).to.include(\"<xs:complexType name=\\\"Book\\\">\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}?xsd=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "key": "xsd",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Book",
+      "description": "CRUD på bøger. CreateBook gemmer det nye id i {{bookId}}, og DeleteBook rydder op til sidst.",
+      "item": [
+        {
+          "name": "CreateBook",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Svaret indeholder <id>\", () => pm.expect(pm.response.text()).to.include(\"<id>\"));",
+                  "const match = pm.response.text().match(/<id>(\\d+)<\\/id>/);",
+                  "if (match) pm.collectionVariables.set(\"bookId\", match[1]);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml; charset=utf-8"
+              },
+              {
+                "key": "SOAPAction",
+                "value": "\"http://soap.library.dk/CreateBook\""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:lib=\"http://soap.library.dk/\">\n  <soapenv:Body>\n    <lib:CreateBookRequest>\n      <title>Postman-bog</title>\n      <authorId>394</authorId>\n      <publishingCompanyId>74</publishingCompanyId>\n      <publishingYear>2026</publishingYear>\n    </lib:CreateBookRequest>\n  </soapenv:Body>\n</soapenv:Envelope>",
+              "options": {
+                "raw": {
+                  "language": "xml"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GetBookById",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Svaret indeholder <title>Postman-bog</title>\", () => pm.expect(pm.response.text()).to.include(\"<title>Postman-bog</title>\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml; charset=utf-8"
+              },
+              {
+                "key": "SOAPAction",
+                "value": "\"http://soap.library.dk/GetBookById\""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:lib=\"http://soap.library.dk/\">\n  <soapenv:Body>\n    <lib:GetBookByIdRequest>\n      <id>{{bookId}}</id>\n    </lib:GetBookByIdRequest>\n  </soapenv:Body>\n</soapenv:Envelope>",
+              "options": {
+                "raw": {
+                  "language": "xml"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "UpdateBook",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Svaret indeholder <success>true</success>\", () => pm.expect(pm.response.text()).to.include(\"<success>true</success>\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml; charset=utf-8"
+              },
+              {
+                "key": "SOAPAction",
+                "value": "\"http://soap.library.dk/UpdateBook\""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:lib=\"http://soap.library.dk/\">\n  <soapenv:Body>\n    <lib:UpdateBookRequest>\n      <id>{{bookId}}</id>\n      <title>Postman-bog, rettet</title>\n      <authorId>394</authorId>\n      <publishingCompanyId>74</publishingCompanyId>\n      <publishingYear>2025</publishingYear>\n    </lib:UpdateBookRequest>\n  </soapenv:Body>\n</soapenv:Envelope>",
+              "options": {
+                "raw": {
+                  "language": "xml"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GetBookById (efter update)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Svaret indeholder <publishingYear>2025</publishingYear>\", () => pm.expect(pm.response.text()).to.include(\"<publishingYear>2025</publishingYear>\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml; charset=utf-8"
+              },
+              {
+                "key": "SOAPAction",
+                "value": "\"http://soap.library.dk/GetBookById\""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:lib=\"http://soap.library.dk/\">\n  <soapenv:Body>\n    <lib:GetBookByIdRequest>\n      <id>{{bookId}}</id>\n    </lib:GetBookByIdRequest>\n  </soapenv:Body>\n</soapenv:Envelope>",
+              "options": {
+                "raw": {
+                  "language": "xml"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "DeleteBook",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Svaret indeholder <success>true</success>\", () => pm.expect(pm.response.text()).to.include(\"<success>true</success>\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml; charset=utf-8"
+              },
+              {
+                "key": "SOAPAction",
+                "value": "\"http://soap.library.dk/DeleteBook\""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:lib=\"http://soap.library.dk/\">\n  <soapenv:Body>\n    <lib:DeleteBookRequest>\n      <id>{{bookId}}</id>\n    </lib:DeleteBookRequest>\n  </soapenv:Body>\n</soapenv:Envelope>",
+              "options": {
+                "raw": {
+                  "language": "xml"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Author",
+      "description": "CRUD på forfattere. CreateAuthor gemmer det nye id i {{authorId}}.",
+      "item": [
+        {
+          "name": "CreateAuthor",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Svaret indeholder <id>\", () => pm.expect(pm.response.text()).to.include(\"<id>\"));",
+                  "const match = pm.response.text().match(/<id>(\\d+)<\\/id>/);",
+                  "if (match) pm.collectionVariables.set(\"authorId\", match[1]);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml; charset=utf-8"
+              },
+              {
+                "key": "SOAPAction",
+                "value": "\"http://soap.library.dk/CreateAuthor\""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:lib=\"http://soap.library.dk/\">\n  <soapenv:Body>\n    <lib:CreateAuthorRequest>\n      <name>Postman</name>\n      <surname>Forfatter</surname>\n    </lib:CreateAuthorRequest>\n  </soapenv:Body>\n</soapenv:Envelope>",
+              "options": {
+                "raw": {
+                  "language": "xml"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GetAuthorById",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Svaret indeholder <surname>Forfatter</surname>\", () => pm.expect(pm.response.text()).to.include(\"<surname>Forfatter</surname>\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml; charset=utf-8"
+              },
+              {
+                "key": "SOAPAction",
+                "value": "\"http://soap.library.dk/GetAuthorById\""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:lib=\"http://soap.library.dk/\">\n  <soapenv:Body>\n    <lib:GetAuthorByIdRequest>\n      <id>{{authorId}}</id>\n    </lib:GetAuthorByIdRequest>\n  </soapenv:Body>\n</soapenv:Envelope>",
+              "options": {
+                "raw": {
+                  "language": "xml"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "ListAuthors",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Svaret indeholder <author><id>1</id>\", () => pm.expect(pm.response.text()).to.include(\"<author><id>1</id>\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml; charset=utf-8"
+              },
+              {
+                "key": "SOAPAction",
+                "value": "\"http://soap.library.dk/ListAuthors\""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:lib=\"http://soap.library.dk/\">\n  <soapenv:Body>\n    <lib:ListAuthorsRequest/>\n  </soapenv:Body>\n</soapenv:Envelope>",
+              "options": {
+                "raw": {
+                  "language": "xml"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "UpdateAuthor",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Svaret indeholder <success>true</success>\", () => pm.expect(pm.response.text()).to.include(\"<success>true</success>\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml; charset=utf-8"
+              },
+              {
+                "key": "SOAPAction",
+                "value": "\"http://soap.library.dk/UpdateAuthor\""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:lib=\"http://soap.library.dk/\">\n  <soapenv:Body>\n    <lib:UpdateAuthorRequest>\n      <id>{{authorId}}</id>\n      <name>Postman</name>\n      <surname>Rettet</surname>\n    </lib:UpdateAuthorRequest>\n  </soapenv:Body>\n</soapenv:Envelope>",
+              "options": {
+                "raw": {
+                  "language": "xml"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "DeleteAuthor",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Svaret indeholder <success>true</success>\", () => pm.expect(pm.response.text()).to.include(\"<success>true</success>\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml; charset=utf-8"
+              },
+              {
+                "key": "SOAPAction",
+                "value": "\"http://soap.library.dk/DeleteAuthor\""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:lib=\"http://soap.library.dk/\">\n  <soapenv:Body>\n    <lib:DeleteAuthorRequest>\n      <id>{{authorId}}</id>\n    </lib:DeleteAuthorRequest>\n  </soapenv:Body>\n</soapenv:Envelope>",
+              "options": {
+                "raw": {
+                  "language": "xml"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "PublishingCompany",
+      "description": "CRUD på forlag. CreatePublishingCompany gemmer det nye id i {{publishingCompanyId}}.",
+      "item": [
+        {
+          "name": "CreatePublishingCompany",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Svaret indeholder <id>\", () => pm.expect(pm.response.text()).to.include(\"<id>\"));",
+                  "const match = pm.response.text().match(/<id>(\\d+)<\\/id>/);",
+                  "if (match) pm.collectionVariables.set(\"publishingCompanyId\", match[1]);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml; charset=utf-8"
+              },
+              {
+                "key": "SOAPAction",
+                "value": "\"http://soap.library.dk/CreatePublishingCompany\""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:lib=\"http://soap.library.dk/\">\n  <soapenv:Body>\n    <lib:CreatePublishingCompanyRequest>\n      <name>Postman Forlag</name>\n    </lib:CreatePublishingCompanyRequest>\n  </soapenv:Body>\n</soapenv:Envelope>",
+              "options": {
+                "raw": {
+                  "language": "xml"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GetPublishingCompanyById",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Svaret indeholder <name>Postman Forlag</name>\", () => pm.expect(pm.response.text()).to.include(\"<name>Postman Forlag</name>\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml; charset=utf-8"
+              },
+              {
+                "key": "SOAPAction",
+                "value": "\"http://soap.library.dk/GetPublishingCompanyById\""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:lib=\"http://soap.library.dk/\">\n  <soapenv:Body>\n    <lib:GetPublishingCompanyByIdRequest>\n      <id>{{publishingCompanyId}}</id>\n    </lib:GetPublishingCompanyByIdRequest>\n  </soapenv:Body>\n</soapenv:Envelope>",
+              "options": {
+                "raw": {
+                  "language": "xml"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "ListPublishingCompanies",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Svaret indeholder <publishingCompany><id>1</id>\", () => pm.expect(pm.response.text()).to.include(\"<publishingCompany><id>1</id>\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml; charset=utf-8"
+              },
+              {
+                "key": "SOAPAction",
+                "value": "\"http://soap.library.dk/ListPublishingCompanies\""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:lib=\"http://soap.library.dk/\">\n  <soapenv:Body>\n    <lib:ListPublishingCompaniesRequest/>\n  </soapenv:Body>\n</soapenv:Envelope>",
+              "options": {
+                "raw": {
+                  "language": "xml"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "UpdatePublishingCompany",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Svaret indeholder <success>true</success>\", () => pm.expect(pm.response.text()).to.include(\"<success>true</success>\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml; charset=utf-8"
+              },
+              {
+                "key": "SOAPAction",
+                "value": "\"http://soap.library.dk/UpdatePublishingCompany\""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:lib=\"http://soap.library.dk/\">\n  <soapenv:Body>\n    <lib:UpdatePublishingCompanyRequest>\n      <id>{{publishingCompanyId}}</id>\n      <name>Postman Forlag, rettet</name>\n    </lib:UpdatePublishingCompanyRequest>\n  </soapenv:Body>\n</soapenv:Envelope>",
+              "options": {
+                "raw": {
+                  "language": "xml"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "DeletePublishingCompany",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Svaret indeholder <success>true</success>\", () => pm.expect(pm.response.text()).to.include(\"<success>true</success>\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml; charset=utf-8"
+              },
+              {
+                "key": "SOAPAction",
+                "value": "\"http://soap.library.dk/DeletePublishingCompany\""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:lib=\"http://soap.library.dk/\">\n  <soapenv:Body>\n    <lib:DeletePublishingCompanyRequest>\n      <id>{{publishingCompanyId}}</id>\n    </lib:DeletePublishingCompanyRequest>\n  </soapenv:Body>\n</soapenv:Envelope>",
+              "options": {
+                "raw": {
+                  "language": "xml"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Faults",
+      "description": "Kald, der skal fejle. SOAP 1.1 svarer HTTP 500 ved alle faults; navnet på faulten står i <detail>.",
+      "item": [
+        {
+          "name": "NotFoundFault: GetBookById med ukendt id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 500\", () => pm.response.to.have.status(500));",
+                  "pm.test(\"Svaret indeholder NotFoundFault\", () => pm.expect(pm.response.text()).to.include(\"NotFoundFault\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml; charset=utf-8"
+              },
+              {
+                "key": "SOAPAction",
+                "value": "\"http://soap.library.dk/GetBookById\""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:lib=\"http://soap.library.dk/\">\n  <soapenv:Body>\n    <lib:GetBookByIdRequest>\n      <id>999999</id>\n    </lib:GetBookByIdRequest>\n  </soapenv:Body>\n</soapenv:Envelope>",
+              "options": {
+                "raw": {
+                  "language": "xml"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "NotFoundFault: UpdateAuthor med ukendt id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 500\", () => pm.response.to.have.status(500));",
+                  "pm.test(\"Svaret indeholder NotFoundFault\", () => pm.expect(pm.response.text()).to.include(\"NotFoundFault\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml; charset=utf-8"
+              },
+              {
+                "key": "SOAPAction",
+                "value": "\"http://soap.library.dk/UpdateAuthor\""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:lib=\"http://soap.library.dk/\">\n  <soapenv:Body>\n    <lib:UpdateAuthorRequest>\n      <id>999999</id>\n      <name>Ingen</name>\n      <surname>Findes</surname>\n    </lib:UpdateAuthorRequest>\n  </soapenv:Body>\n</soapenv:Envelope>",
+              "options": {
+                "raw": {
+                  "language": "xml"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "ValidationFault: CreateBook uden title",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 500\", () => pm.response.to.have.status(500));",
+                  "pm.test(\"Svaret indeholder <message>title is missing</message>\", () => pm.expect(pm.response.text()).to.include(\"<message>title is missing</message>\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml; charset=utf-8"
+              },
+              {
+                "key": "SOAPAction",
+                "value": "\"http://soap.library.dk/CreateBook\""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:lib=\"http://soap.library.dk/\">\n  <soapenv:Body>\n    <lib:CreateBookRequest>\n      <authorId>394</authorId>\n      <publishingCompanyId>74</publishingCompanyId>\n      <publishingYear>2026</publishingYear>\n    </lib:CreateBookRequest>\n  </soapenv:Body>\n</soapenv:Envelope>",
+              "options": {
+                "raw": {
+                  "language": "xml"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "ValidationFault: CreateBook med publishingYear 1899",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 500\", () => pm.response.to.have.status(500));",
+                  "pm.test(\"Svaret indeholder publishingYear must be between 1900 and 9999\", () => pm.expect(pm.response.text()).to.include(\"publishingYear must be between 1900 and 9999\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml; charset=utf-8"
+              },
+              {
+                "key": "SOAPAction",
+                "value": "\"http://soap.library.dk/CreateBook\""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:lib=\"http://soap.library.dk/\">\n  <soapenv:Body>\n    <lib:CreateBookRequest>\n      <title>For gammel</title>\n      <authorId>394</authorId>\n      <publishingCompanyId>74</publishingCompanyId>\n      <publishingYear>1899</publishingYear>\n    </lib:CreateBookRequest>\n  </soapenv:Body>\n</soapenv:Envelope>",
+              "options": {
+                "raw": {
+                  "language": "xml"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "ValidationFault: CreateBook med tekst i publishingYear",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 500\", () => pm.response.to.have.status(500));",
+                  "pm.test(\"Svaret indeholder publishingYear is missing or not a valid integer\", () => pm.expect(pm.response.text()).to.include(\"publishingYear is missing or not a valid integer\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml; charset=utf-8"
+              },
+              {
+                "key": "SOAPAction",
+                "value": "\"http://soap.library.dk/CreateBook\""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:lib=\"http://soap.library.dk/\">\n  <soapenv:Body>\n    <lib:CreateBookRequest>\n      <title>Bog</title>\n      <authorId>394</authorId>\n      <publishingCompanyId>74</publishingCompanyId>\n      <publishingYear>abc</publishingYear>\n    </lib:CreateBookRequest>\n  </soapenv:Body>\n</soapenv:Envelope>",
+              "options": {
+                "raw": {
+                  "language": "xml"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "ValidationFault: CreateBook med forfatter, der ikke findes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 500\", () => pm.response.to.have.status(500));",
+                  "pm.test(\"Svaret indeholder does not reference an existing author\", () => pm.expect(pm.response.text()).to.include(\"does not reference an existing author\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml; charset=utf-8"
+              },
+              {
+                "key": "SOAPAction",
+                "value": "\"http://soap.library.dk/CreateBook\""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:lib=\"http://soap.library.dk/\">\n  <soapenv:Body>\n    <lib:CreateBookRequest>\n      <title>Bog</title>\n      <authorId>999999</authorId>\n      <publishingCompanyId>74</publishingCompanyId>\n      <publishingYear>2026</publishingYear>\n    </lib:CreateBookRequest>\n  </soapenv:Body>\n</soapenv:Envelope>",
+              "options": {
+                "raw": {
+                  "language": "xml"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "ValidationFault: CreateAuthor med tomt surname",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 500\", () => pm.response.to.have.status(500));",
+                  "pm.test(\"Svaret indeholder <message>surname must not be empty</message>\", () => pm.expect(pm.response.text()).to.include(\"<message>surname must not be empty</message>\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml; charset=utf-8"
+              },
+              {
+                "key": "SOAPAction",
+                "value": "\"http://soap.library.dk/CreateAuthor\""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:lib=\"http://soap.library.dk/\">\n  <soapenv:Body>\n    <lib:CreateAuthorRequest>\n      <name>Homer</name>\n      <surname></surname>\n    </lib:CreateAuthorRequest>\n  </soapenv:Body>\n</soapenv:Envelope>",
+              "options": {
+                "raw": {
+                  "language": "xml"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "ValidationFault: UpdatePublishingCompany med navn over 40 tegn",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 500\", () => pm.response.to.have.status(500));",
+                  "pm.test(\"Svaret indeholder name must be at most 40 characters\", () => pm.expect(pm.response.text()).to.include(\"name must be at most 40 characters\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml; charset=utf-8"
+              },
+              {
+                "key": "SOAPAction",
+                "value": "\"http://soap.library.dk/UpdatePublishingCompany\""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:lib=\"http://soap.library.dk/\">\n  <soapenv:Body>\n    <lib:UpdatePublishingCompanyRequest>\n      <id>1</id>\n      <name>xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</name>\n    </lib:UpdatePublishingCompanyRequest>\n  </soapenv:Body>\n</soapenv:Envelope>",
+              "options": {
+                "raw": {
+                  "language": "xml"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "ConflictFault: DeleteAuthor 394 (har bøger)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 500\", () => pm.response.to.have.status(500));",
+                  "pm.test(\"Svaret indeholder ConflictFault\", () => pm.expect(pm.response.text()).to.include(\"ConflictFault\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml; charset=utf-8"
+              },
+              {
+                "key": "SOAPAction",
+                "value": "\"http://soap.library.dk/DeleteAuthor\""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:lib=\"http://soap.library.dk/\">\n  <soapenv:Body>\n    <lib:DeleteAuthorRequest>\n      <id>394</id>\n    </lib:DeleteAuthorRequest>\n  </soapenv:Body>\n</soapenv:Envelope>",
+              "options": {
+                "raw": {
+                  "language": "xml"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "ConflictFault: DeletePublishingCompany 74 (har bøger)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 500\", () => pm.response.to.have.status(500));",
+                  "pm.test(\"Svaret indeholder ConflictFault\", () => pm.expect(pm.response.text()).to.include(\"ConflictFault\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml; charset=utf-8"
+              },
+              {
+                "key": "SOAPAction",
+                "value": "\"http://soap.library.dk/DeletePublishingCompany\""
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:lib=\"http://soap.library.dk/\">\n  <soapenv:Body>\n    <lib:DeletePublishingCompanyRequest>\n      <id>74</id>\n    </lib:DeletePublishingCompanyRequest>\n  </soapenv:Body>\n</soapenv:Envelope>",
+              "options": {
+                "raw": {
+                  "language": "xml"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}",
+              "host": [
+                "{{baseUrl}}"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/library"
+    },
+    {
+      "key": "bookId",
+      "value": ""
+    },
+    {
+      "key": "authorId",
+      "value": ""
+    },
+    {
+      "key": "publishingCompanyId",
+      "value": ""
+    }
+  ]
+}

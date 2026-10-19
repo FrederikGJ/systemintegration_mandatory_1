@@ -47,6 +47,13 @@ class RepositoryTest {
     }
 
     @Test
+    void findsBooksByPublishingCompany() {
+        var books = new BookRepository(db);
+        assertTrue(books.findByPublishingCompany(74).stream().anyMatch(b -> b.id() == 1000));
+        assertTrue(books.findByPublishingCompany(158).isEmpty()); // forlag 158 har ingen bøger i seed-data
+    }
+
+    @Test
     void bookCrudRoundTrip() {
         var books = new BookRepository(db);
         var author = new AuthorRepository(db).create(new Author(0, "Test", "Forfatter"));
