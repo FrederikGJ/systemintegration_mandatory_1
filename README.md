@@ -12,7 +12,7 @@ Fire API'er til et bibliotek, bygget oven på én fælles SQLite-database.
 | Build     | Maven, multi-module. `./mvnw` henter selv Maven, så kun Java 21 skal være installeret |
 | Database  | SQLite via `sqlite-jdbc`. Ren JDBC i `db/`, ingen ORM       |
 | REST      | Spring Boot (Spring Web)                                    |
-| SOAP      | Spring Boot (Spring Web Services)                           |
+| SOAP      | Jakarta XML Web Services (JAX-WS) via Metro, uden Spring    |
 | GraphQL   | Spring Boot (Spring for GraphQL)                            |
 | gRPC      | grpc-java + protobuf                                        |
 
@@ -26,6 +26,11 @@ Fire API'er til et bibliotek, bygget oven på én fælles SQLite-database.
 | `graphql-api/`       | GraphQL API                                               |
 | `grpc-api/`          | gRPC API. Se [grpc-api/README.md](grpc-api/README.md)     |
 | `API_testing_media/` | Manuel test af API'erne, én mappe pr. API. Se [grpc](API_testing_media/grpc/README.md) og [rest](API_testing_media/rest/README.md) |
+| `rest-api/`          | REST API                                                  |
+| `soap-api/`          | SOAP API. Se [soap-api/README.md](soap-api/README.md)     |
+| `graphql-api/`       | GraphQL API                                               |
+| `grpc-api/`          | gRPC API. Se [grpc-api/README.md](grpc-api/README.md)     |
+| `API_testing_media/` | Manuel test af API'erne, én mappe pr. API. Se [API_testing_media/grpc/README.md](API_testing_media/grpc/README.md) og [API_testing_media/soap/README.md](API_testing_media/soap/README.md) |
 
 ## Kom i gang
 

@@ -91,6 +91,22 @@ public final class BookRepository {
         }
     }
 
+    public List<Book> findByPublishingCompany(int publishingCompanyId) {
+        var sql = "SELECT " + COLUMNS + " FROM tbook WHERE nPublishingCompanyID = ? ORDER BY nBookID";
+        try (var c = db.connect(); var ps = c.prepareStatement(sql)) {
+            ps.setInt(1, publishingCompanyId);
+            try (var rs = ps.executeQuery()) {
+                var books = new ArrayList<Book>();
+                while (rs.next()) {
+                    books.add(map(rs));
+                }
+                return books;
+            }
+        } catch (SQLException e) {
+            throw new DatabaseException("Kunne ikke hente bøger for forlag " + publishingCompanyId, e);
+        }
+    }
+
     /** Indsætter bogen og returnerer den med det genererede id. */
     public Book create(Book book) {
         var sql = "INSERT INTO tbook (cTitle, nAuthorID, nPublishingYear, nPublishingCompanyID) VALUES (?, ?, ?, ?)";
