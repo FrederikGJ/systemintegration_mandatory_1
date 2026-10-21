@@ -1,0 +1,865 @@
+{
+  "info": {
+    "name": "Library REST API",
+    "description": "Alle endpoints i rest-api med tests. Kør hele collectionen i rækkefølge (Run collection): den opretter en forfatter, et forlag og en bog, gemmer deres id'er i collection-variablerne og sletter dem igen til sidst.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1 Forfattere",
+      "description": "/api/authors: create, read by ID, list all, update. Sletning ligger i mappe 4, fordi bogen i mappe 3 bruger forfatteren.",
+      "item": [
+        {
+          "name": "Opret forfatter",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Location peger på den nye række\", () => pm.expect(pm.response.headers.get(\"Location\")).to.match(new RegExp(\"/api/authors/\" + body.id + \"$\")));",
+                  "pm.test(\"Body har det nye id og felterne fra requesten\", () => {",
+                  "    pm.expect(body.id).to.be.a(\"number\");",
+                  "    pm.expect(body.name).to.eql(\"Karen\");",
+                  "    pm.expect(body.surname).to.eql(\"Blixen\");",
+                  "});",
+                  "pm.collectionVariables.set(\"authorId\", body.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/authors",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Karen\",\n    \"surname\": \"Blixen\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Hent forfatter",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Body har de forventede felter\", () => {",
+                  "    pm.expect(body.id).to.eql(Number(pm.collectionVariables.get(\"authorId\")));",
+                  "    pm.expect(body.name).to.eql(\"Karen\");",
+                  "    pm.expect(body.surname).to.eql(\"Blixen\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/authors/{{authorId}}"
+          }
+        },
+        {
+          "name": "List alle forfattere",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "const list = pm.response.json();",
+                  "pm.test(\"Svaret er en liste med alle rækker\", () => pm.expect(list).to.be.an(\"array\").that.is.not.empty);",
+                  "pm.test(\"Listen indeholder den oprettede række\", () => pm.expect(list.map(x => x.id)).to.include(Number(pm.collectionVariables.get(\"authorId\"))));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/authors"
+          }
+        },
+        {
+          "name": "Opdater forfatter",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Body har de forventede felter\", () => {",
+                  "    pm.expect(body.id).to.eql(Number(pm.collectionVariables.get(\"authorId\")));",
+                  "    pm.expect(body.name).to.eql(\"Tania\");",
+                  "    pm.expect(body.surname).to.eql(null);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/authors/{{authorId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Tania\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "PUT overskriver hele rækken, så surname bliver null, når den udelades."
+          }
+        },
+        {
+          "name": "Fejl: forfatter findes ikke",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"404 Not Found\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"Fejlen er Problem Details\", () => {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/problem+json\");",
+                  "    pm.expect(pm.response.json().detail).to.eql(\"Forfatter \" + pm.collectionVariables.get(\"unknownId\") + \" findes ikke\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/authors/{{unknownId}}"
+          }
+        },
+        {
+          "name": "Fejl: tomt navn",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Fejlen er Problem Details\", () => {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/problem+json\");",
+                  "    pm.expect(pm.response.json().detail).to.eql(\"Ugyldig request-body\");",
+                  "});",
+                  "pm.test(\"errors nævner de ugyldige felter\", () => {",
+                  "    const errors = pm.response.json().errors.join(\" \");",
+                  "    pm.expect(errors).to.include(\"name\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/authors",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"  \"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2 Forlag",
+      "description": "/api/publishers: create, read by ID, list all, update. Sletning ligger i mappe 4.",
+      "item": [
+        {
+          "name": "Opret forlag",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Location peger på den nye række\", () => pm.expect(pm.response.headers.get(\"Location\")).to.match(new RegExp(\"/api/publishers/\" + body.id + \"$\")));",
+                  "pm.test(\"Body har det nye id og felterne fra requesten\", () => {",
+                  "    pm.expect(body.id).to.be.a(\"number\");",
+                  "    pm.expect(body.name).to.eql(\"Gyldendal\");",
+                  "});",
+                  "pm.collectionVariables.set(\"publisherId\", body.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/publishers",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Gyldendal\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Hent forlag",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Body har de forventede felter\", () => {",
+                  "    pm.expect(body.id).to.eql(Number(pm.collectionVariables.get(\"publisherId\")));",
+                  "    pm.expect(body.name).to.eql(\"Gyldendal\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/publishers/{{publisherId}}"
+          }
+        },
+        {
+          "name": "List alle forlag",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "const list = pm.response.json();",
+                  "pm.test(\"Svaret er en liste med alle rækker\", () => pm.expect(list).to.be.an(\"array\").that.is.not.empty);",
+                  "pm.test(\"Listen indeholder den oprettede række\", () => pm.expect(list.map(x => x.id)).to.include(Number(pm.collectionVariables.get(\"publisherId\"))));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/publishers"
+          }
+        },
+        {
+          "name": "Opdater forlag",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Body har de forventede felter\", () => {",
+                  "    pm.expect(body.id).to.eql(Number(pm.collectionVariables.get(\"publisherId\")));",
+                  "    pm.expect(body.name).to.eql(\"Lindhardt og Ringhof\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/publishers/{{publisherId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Lindhardt og Ringhof\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Fejl: forlag findes ikke",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"404 Not Found\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"Fejlen er Problem Details\", () => {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/problem+json\");",
+                  "    pm.expect(pm.response.json().detail).to.eql(\"Forlag \" + pm.collectionVariables.get(\"unknownId\") + \" findes ikke\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/publishers/{{unknownId}}"
+          }
+        },
+        {
+          "name": "Fejl: navn mangler",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Fejlen er Problem Details\", () => {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/problem+json\");",
+                  "    pm.expect(pm.response.json().detail).to.eql(\"Ugyldig request-body\");",
+                  "});",
+                  "pm.test(\"errors nævner de ugyldige felter\", () => {",
+                  "    const errors = pm.response.json().errors.join(\" \");",
+                  "    pm.expect(errors).to.include(\"name\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/publishers",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3 Bøger",
+      "description": "/api/books: create, read by ID, list med pagination (limit og offset), update, delete.",
+      "item": [
+        {
+          "name": "Opret bog",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 Created\", () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Location peger på den nye række\", () => pm.expect(pm.response.headers.get(\"Location\")).to.match(new RegExp(\"/api/books/\" + body.id + \"$\")));",
+                  "pm.test(\"Body har det nye id og felterne fra requesten\", () => {",
+                  "    pm.expect(body.id).to.be.a(\"number\");",
+                  "    pm.expect(body.title).to.eql(\"Babettes gæstebud\");",
+                  "    pm.expect(body.publishingYear).to.eql(1958);",
+                  "    pm.expect(body.authorId).to.eql(Number(pm.collectionVariables.get(\"authorId\")));",
+                  "    pm.expect(body.publishingCompanyId).to.eql(Number(pm.collectionVariables.get(\"publisherId\")));",
+                  "});",
+                  "pm.collectionVariables.set(\"bookId\", body.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/books",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Babettes gæstebud\",\n    \"authorId\": {{authorId}},\n    \"publishingYear\": 1958,\n    \"publishingCompanyId\": {{publisherId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Hent bog",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Body har de forventede felter\", () => {",
+                  "    pm.expect(body.id).to.eql(Number(pm.collectionVariables.get(\"bookId\")));",
+                  "    pm.expect(body.title).to.eql(\"Babettes gæstebud\");",
+                  "    pm.expect(body.publishingYear).to.eql(1958);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/books/{{bookId}}"
+          }
+        },
+        {
+          "name": "List bøger (default: limit 20, offset 0)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "const page = pm.response.json();",
+                  "pm.test(\"Svaret er en side med limit, offset og total\", () => {",
+                  "    pm.expect(page.limit).to.eql(20);",
+                  "    pm.expect(page.offset).to.eql(0);",
+                  "    pm.expect(page.total).to.be.a(\"number\");",
+                  "    pm.expect(page.items).to.be.an(\"array\").with.lengthOf(Math.min(20, Math.max(0, page.total - 0)));",
+                  "});",
+                  "pm.test(\"Bøgerne er sorteret efter id\", () => {",
+                  "    const ids = page.items.map(b => b.id);",
+                  "    pm.expect(ids).to.eql([...ids].sort((a, b) => a - b));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/books"
+          }
+        },
+        {
+          "name": "List bøger (side 3 med 5 pr. side)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "const page = pm.response.json();",
+                  "pm.test(\"Svaret er en side med limit, offset og total\", () => {",
+                  "    pm.expect(page.limit).to.eql(5);",
+                  "    pm.expect(page.offset).to.eql(10);",
+                  "    pm.expect(page.total).to.be.a(\"number\");",
+                  "    pm.expect(page.items).to.be.an(\"array\").with.lengthOf(Math.min(5, Math.max(0, page.total - 10)));",
+                  "});",
+                  "pm.test(\"Bøgerne er sorteret efter id\", () => {",
+                  "    const ids = page.items.map(b => b.id);",
+                  "    pm.expect(ids).to.eql([...ids].sort((a, b) => a - b));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/books?limit=5&offset=10",
+            "description": "offset er antal bøger, der springes over. Side n med limit l har offset (n - 1) * l."
+          }
+        },
+        {
+          "name": "List bøger (sidste side)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.sendRequest(pm.collectionVariables.get(\"baseUrl\") + \"/api/books?limit=1\", (err, res) => {",
+                  "    pm.collectionVariables.set(\"lastOffset\", res.json().total - 1);",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "const page = pm.response.json();",
+                  "pm.test(\"Svaret er en side med limit, offset og total\", () => {",
+                  "    pm.expect(page.limit).to.eql(5);",
+                  "    pm.expect(page.offset).to.eql(Number(pm.collectionVariables.get(\"lastOffset\")));",
+                  "    pm.expect(page.total).to.be.a(\"number\");",
+                  "    pm.expect(page.items).to.be.an(\"array\").with.lengthOf(Math.min(5, Math.max(0, page.total - Number(pm.collectionVariables.get(\"lastOffset\")))));",
+                  "});",
+                  "pm.test(\"Bøgerne er sorteret efter id\", () => {",
+                  "    const ids = page.items.map(b => b.id);",
+                  "    pm.expect(ids).to.eql([...ids].sort((a, b) => a - b));",
+                  "});",
+                  "pm.test(\"Den nye bog er sidst i listen\", () => pm.expect(page.items.at(-1).id).to.eql(Number(pm.collectionVariables.get(\"bookId\"))));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/books?limit=5&offset={{lastOffset}}",
+            "description": "lastOffset sættes af scriptet før requesten: total - 1, så siden kun har den nyeste bog."
+          }
+        },
+        {
+          "name": "Opdater bog",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 OK\", () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Body har de forventede felter\", () => {",
+                  "    pm.expect(body.id).to.eql(Number(pm.collectionVariables.get(\"bookId\")));",
+                  "    pm.expect(body.title).to.eql(\"Babette's Feast\");",
+                  "    pm.expect(body.publishingYear).to.eql(null);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/books/{{bookId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Babette's Feast\",\n    \"authorId\": {{authorId}},\n    \"publishingCompanyId\": {{publisherId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "publishingYear er udeladt, så den bliver null."
+          }
+        },
+        {
+          "name": "Fejl: ukendt forfatter",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Fejlen er Problem Details\", () => {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/problem+json\");",
+                  "    pm.expect(pm.response.json().detail).to.eql(\"Forfatter \" + pm.collectionVariables.get(\"unknownId\") + \" findes ikke\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/books",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Bog uden forfatter\",\n    \"authorId\": {{unknownId}},\n    \"publishingCompanyId\": {{publisherId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Fejl: ugyldig body",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Fejlen er Problem Details\", () => {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/problem+json\");",
+                  "    pm.expect(pm.response.json().detail).to.eql(\"Ugyldig request-body\");",
+                  "});",
+                  "pm.test(\"errors nævner de ugyldige felter\", () => {",
+                  "    const errors = pm.response.json().errors.join(\" \");",
+                  "    pm.expect(errors).to.include(\"title\");",
+                  "    pm.expect(errors).to.include(\"authorId\");",
+                  "    pm.expect(errors).to.include(\"publishingCompanyId\");",
+                  "    pm.expect(errors).to.include(\"publishingYear\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/books",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"\",\n    \"publishingYear\": 20000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Fejl: limit over 100",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"400 Bad Request\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Fejlen er Problem Details\", () => {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/problem+json\");",
+                  "    pm.expect(pm.response.json().detail).to.eql(\"Ugyldige parametre\");",
+                  "});",
+                  "pm.test(\"errors nævner de ugyldige felter\", () => {",
+                  "    const errors = pm.response.json().errors.join(\" \");",
+                  "    pm.expect(errors).to.include(\"limit\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/books?limit=500"
+          }
+        },
+        {
+          "name": "Slet bog",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"204 No Content\", () => pm.response.to.have.status(204));",
+                  "pm.test(\"Ingen body\", () => pm.expect(pm.response.text()).to.be.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/books/{{bookId}}"
+          }
+        },
+        {
+          "name": "Fejl: slettet bog findes ikke",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"404 Not Found\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"Fejlen er Problem Details\", () => {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/problem+json\");",
+                  "    pm.expect(pm.response.json().detail).to.eql(\"Bog \" + pm.collectionVariables.get(\"bookId\") + \" findes ikke\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/books/{{bookId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "4 Slet forfatter og forlag",
+      "description": "Rydder op efter mappe 1 og 2, så databasen er som før kørslen.",
+      "item": [
+        {
+          "name": "Slet forfatter",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"204 No Content\", () => pm.response.to.have.status(204));",
+                  "pm.test(\"Ingen body\", () => pm.expect(pm.response.text()).to.be.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/authors/{{authorId}}"
+          }
+        },
+        {
+          "name": "Slet forlag",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"204 No Content\", () => pm.response.to.have.status(204));",
+                  "pm.test(\"Ingen body\", () => pm.expect(pm.response.text()).to.be.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/publishers/{{publisherId}}"
+          }
+        },
+        {
+          "name": "Fejl: slet forfatter igen",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"404 Not Found\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"Fejlen er Problem Details\", () => {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/problem+json\");",
+                  "    pm.expect(pm.response.json().detail).to.eql(\"Forfatter \" + pm.collectionVariables.get(\"authorId\") + \" findes ikke\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/authors/{{authorId}}"
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "unknownId",
+      "value": "999999"
+    },
+    {
+      "key": "authorId",
+      "value": ""
+    },
+    {
+      "key": "publisherId",
+      "value": ""
+    },
+    {
+      "key": "bookId",
+      "value": ""
+    },
+    {
+      "key": "lastOffset",
+      "value": ""
+    }
+  ]
+}

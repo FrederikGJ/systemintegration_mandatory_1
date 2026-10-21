@@ -47,6 +47,12 @@ class RepositoryTest {
     }
 
     @Test
+    void booksArePaged() {
+        var books = new BookRepository(db);
+        var all = books.findAll();
+        assertEquals(all.size(), books.count());
+        assertEquals(all.subList(10, 15), books.findPage(5, 10));
+        assertTrue(books.findPage(5, all.size()).isEmpty());
     void findsBooksByPublishingCompany() {
         var books = new BookRepository(db);
         assertTrue(books.findByPublishingCompany(74).stream().anyMatch(b -> b.id() == 1000));

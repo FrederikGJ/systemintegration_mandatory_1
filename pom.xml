@@ -21,6 +21,8 @@
   <modules>
     <module>db</module>
     <module>grpc-api</module>
+    <module>rest-api</module>
+    <!-- soap-api og graphql-api tilføjes her, når de oprettes -->
     <module>soap-api</module>
     <!-- rest-api og graphql-api tilføjes her, når de oprettes -->
   </modules>
@@ -33,6 +35,8 @@
     <grpc.version>1.84.0</grpc.version>
     <!-- protoc og protobuf-java skal have samme version. 3.25.9 er den, grpc-protobuf selv bruger -->
     <protobuf.version>3.25.9</protobuf.version>
+    <!-- Kun rest-api importerer Spring Boots BOM, så den ikke ændrer versioner i db og grpc-api -->
+    <spring-boot.version>3.5.16</spring-boot.version>
     <!-- Jakarta XML Web Services (Metro). Runtime og Maven-plugin har samme version -->
     <jaxws.version>4.0.2</jaxws.version>
   </properties>
@@ -99,6 +103,9 @@
           <version>3.6.2</version>
         </plugin>
         <plugin>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-maven-plugin</artifactId>
+          <version>${spring-boot.version}</version>
           <groupId>com.sun.xml.ws</groupId>
           <artifactId>jaxws-maven-plugin</artifactId>
           <version>${jaxws.version}</version>

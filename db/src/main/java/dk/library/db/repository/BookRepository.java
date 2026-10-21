@@ -35,6 +35,34 @@ public final class BookRepository {
         }
     }
 
+    /** Én side af bøgerne sorteret efter id: højst limit rækker, efter at de første offset er sprunget over. */
+    public List<Book> findPage(int limit, int offset) {
+        var sql = "SELECT " + COLUMNS + " FROM tbook ORDER BY nBookID LIMIT ? OFFSET ?";
+        try (var c = db.connect(); var ps = c.prepareStatement(sql)) {
+            ps.setInt(1, limit);
+            ps.setInt(2, offset);
+            try (var rs = ps.executeQuery()) {
+                var books = new ArrayList<Book>();
+                while (rs.next()) {
+                    books.add(map(rs));
+                }
+                return books;
+            }
+        } catch (SQLException e) {
+            throw new DatabaseException("Kunne ikke hente bøger (limit " + limit + ", offset " + offset + ")", e);
+        }
+    }
+
+    /** Antal bøger i alt, så klienten kan regne ud, hvor mange sider der er. */
+    public int count() {
+        try (var c = db.connect(); var st = c.createStatement(); var rs = st.executeQuery("SELECT COUNT(*) FROM tbook")) {
+            rs.next();
+            return rs.getInt(1);
+        } catch (SQLException e) {
+            throw new DatabaseException("Kunne ikke tælle bøger", e);
+        }
+    }
+
     public Optional<Book> findById(int id) {
         var sql = "SELECT " + COLUMNS + " FROM tbook WHERE nBookID = ?";
         try (var c = db.connect(); var ps = c.prepareStatement(sql)) {
