@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>dk.library</groupId>
+    <artifactId>library-parent</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>rest-api</artifactId>
+  <name>Library REST API</name>
+  <description>REST API oven på db-modulet (Spring Boot, Spring Web)</description>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- Spring Boots versionsliste. Faste versioner fra forælderen (fx sqlite-jdbc 3.53) går forud for en importeret BOM -->
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>${spring-boot.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <dependency>
+      <groupId>dk.library</groupId>
+      <artifactId>db</artifactId>
+    </dependency>
+    <!-- Spring MVC, Jackson (JSON) og en indbygget Tomcat -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <!-- Bean Validation: @NotBlank, @Min osv. på request-bodies og query-parametre -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-validation</artifactId>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <finalName>rest-api</finalName>
+
+    <plugins>
+      <!-- Gemmer parameternavne i class-filerne, så @PathVariable int id finder {id} uden at gentage navnet.
+           spring-boot-starter-parent slår det til af sig selv, men vi har vores egen forælder -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <parameters>true</parameters>
+        </configuration>
+      </plugin>
+
+      <!-- Samler alt i én kørbar jar: target/rest-api.jar -->
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>repackage</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

@@ -47,6 +47,15 @@ class RepositoryTest {
     }
 
     @Test
+    void booksArePaged() {
+        var books = new BookRepository(db);
+        var all = books.findAll();
+        assertEquals(all.size(), books.count());
+        assertEquals(all.subList(10, 15), books.findPage(5, 10));
+        assertTrue(books.findPage(5, all.size()).isEmpty());
+    }
+
+    @Test
     void bookCrudRoundTrip() {
         var books = new BookRepository(db);
         var author = new AuthorRepository(db).create(new Author(0, "Test", "Forfatter"));
