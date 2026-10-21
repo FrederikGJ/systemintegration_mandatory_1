@@ -22,9 +22,8 @@
     <module>db</module>
     <module>grpc-api</module>
     <module>rest-api</module>
-    <!-- soap-api og graphql-api tilføjes her, når de oprettes -->
     <module>soap-api</module>
-    <!-- rest-api og graphql-api tilføjes her, når de oprettes -->
+    <!-- graphql-api bygges for sig selv med sin egen pom (Spring Boot parent) -->
   </modules>
 
   <properties>
@@ -106,6 +105,8 @@
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-maven-plugin</artifactId>
           <version>${spring-boot.version}</version>
+        </plugin>
+        <plugin>
           <groupId>com.sun.xml.ws</groupId>
           <artifactId>jaxws-maven-plugin</artifactId>
           <version>${jaxws.version}</version>

@@ -22,15 +22,10 @@ Fire API'er til et bibliotek, bygget oven på én fælles SQLite-database.
 |----------------------|-----------------------------------------------------------|
 | `db/`                | SQLite-databasen og det fælles datalag, alle API'er bruger. Se [db/README.md](db/README.md) |
 | `rest-api/`          | REST API. Se [rest-api/README.md](rest-api/README.md)     |
-| `soap-api/`          | SOAP API                                                  |
-| `graphql-api/`       | GraphQL API                                               |
-| `grpc-api/`          | gRPC API. Se [grpc-api/README.md](grpc-api/README.md)     |
-| `API_testing_media/` | Manuel test af API'erne, én mappe pr. API. Se [grpc](API_testing_media/grpc/README.md) og [rest](API_testing_media/rest/README.md) |
-| `rest-api/`          | REST API                                                  |
 | `soap-api/`          | SOAP API. Se [soap-api/README.md](soap-api/README.md)     |
 | `graphql-api/`       | GraphQL API                                               |
 | `grpc-api/`          | gRPC API. Se [grpc-api/README.md](grpc-api/README.md)     |
-| `API_testing_media/` | Manuel test af API'erne, én mappe pr. API. Se [API_testing_media/grpc/README.md](API_testing_media/grpc/README.md) og [API_testing_media/soap/README.md](API_testing_media/soap/README.md) |
+| `API_testing_media/` | Manuel test af API'erne, én mappe pr. API. Se [grpc](API_testing_media/grpc/README.md), [soap](API_testing_media/soap/README.md) og [rest](API_testing_media/rest/README.md) |
 
 ## Kom i gang
 
