@@ -12,6 +12,14 @@ cp db/library.db rest-api/target/test.db
 LIBRARY_DB=rest-api/target/test.db java -jar rest-api/target/rest-api.jar
 ```
 
+I PowerShell:
+
+```powershell
+.\mvnw.cmd -pl rest-api -am package -DskipTests
+Copy-Item db\library.db rest-api\target\test.db
+$env:LIBRARY_DB = "rest-api/target/test.db"; java -jar rest-api\target\rest-api.jar
+```
+
 `target/` er gitignoret og slettes ved `./mvnw clean`.
 
 Collectionen sletter godt nok det, den opretter, men SQLite's `AUTOINCREMENT` tæller stadig op, så id'erne ikke genbruges. Kørt mod `db/library.db` ville filen altså ændre sig i git.
