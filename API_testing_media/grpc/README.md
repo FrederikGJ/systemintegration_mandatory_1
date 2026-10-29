@@ -25,6 +25,12 @@ De lægges i `~/go/bin`. Sæt den på `PATH` i `~/.zshrc` eller `~/.bashrc`:
 export PATH="$PATH:$HOME/go/bin"
 ```
 
+På Windows sætter Go's installer normalt selv `%USERPROFILE%\go\bin` på `PATH`. Åbn en ny terminal efter installationen. Mangler den, så tilføj den i PowerShell for det aktuelle vindue:
+
+```powershell
+$env:PATH += ";$env:USERPROFILE\go\bin"
+```
+
 ## Start serveren
 
 Create, Update og Delete skriver i databasen. Kør derfor mod en kopi, så `db/library.db` i git ikke ændres. Fra roden:
@@ -33,6 +39,14 @@ Create, Update og Delete skriver i databasen. Kør derfor mod en kopi, så `db/l
 ./mvnw -pl grpc-api -am package -DskipTests
 cp db/library.db grpc-api/target/test.db
 LIBRARY_DB=grpc-api/target/test.db java -jar grpc-api/target/grpc-api.jar
+```
+
+I PowerShell:
+
+```powershell
+.\mvnw.cmd -pl grpc-api -am package -DskipTests
+Copy-Item db\library.db grpc-api\target\test.db
+$env:LIBRARY_DB = "grpc-api/target/test.db"; java -jar grpc-api\target\grpc-api.jar
 ```
 
 `target/` er gitignoret og slettes ved `./mvnw clean`.
