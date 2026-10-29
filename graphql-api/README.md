@@ -106,11 +106,7 @@ Dette er et selvstændigt Maven-projekt med Spring Boot-parent. Build-helper læ
 
 ## Kendt afgrænsning
 
-Databasen har ikke fremmednøgle-constraints. Referencer og sletning kontrolleres i dette API, men kontrol og skrivning er separate repository-kald. Samtidige ændringer fra de andre API-processer kan derfor give et race; fuld atomisk integritet kræver en fælles ændring i datalaget, som ligger uden for din tilladte mappe. Dette API ændrer heller ikke gRPC-serverens WatchBooks; dens eksisterende stream udsender kun gRPC-oprettelser.
+Databasen har ikke fremmednøgle-constraints. Referencer og sletning kontrolleres i dette API, men kontrol og skrivning er separate repository-kald. Samtidige ændringer fra de andre API-processer kan derfor give et race; fuld atomisk integritet kræver en fælles ændring i datalaget, som ligger uden for den tilladte mappe. Dette API ændrer heller ikke gRPC-serverens WatchBooks; dens eksisterende stream udsender kun gRPC-oprettelser.
 
-## Til fremlæggelsen
-
-Viser query med valgte felter og nested author/publisher, derefter create/update/delete i Postman. Forklar schema → controller → service → fælles repository → SQLite.
-Fordele: klienten vælger felter, relaterede data i ét kald, typet kontrakt. Ulemper: ekstra schema/resolver-logik, fejl skal læses i response body, mange nested opslag kan give flere databasekald.
 
 Spring-reference: https://docs.spring.io/spring-graphql/reference/controllers.html
